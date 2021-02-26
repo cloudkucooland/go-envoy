@@ -8,8 +8,7 @@ import (
 )
 
 func main() {
-	var command, host, value string
-	// debug := flag.Bool("d", false, "debug")
+	var command, host string
 
 	flag.Parse()
 	args := flag.Args()
@@ -23,27 +22,57 @@ func main() {
 	if argc > 1 {
 		host = args[1]
 	}
-	if argc > 2 {
-		value = args[2]
-	}
 
 	var e *envoy.Envoy
-	if host != "" {
-		var err error
-        e, err = envoy.New(host)
-		if err != nil {
-			panic(err)
-		}
+	if host == "" {
+		fmt.Println("usage: encore command host")
+		return
+	}
+
+	var err error
+	e, err = envoy.New(host)
+	if err != nil {
+		panic(err)
 	}
 
 	switch command {
-	case "pull":
-		s, err := e.Pull()
+	case "prod":
+		s, err := e.Production()
 		if err != nil {
 			panic(err)
 		}
 		fmt.Printf("%+v\n", s)
+	case "now":
+		n, err := e.Now()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Now : %f\n", n)
+	case "today":
+		t, err := e.Today()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Today: %f\n", t)
+	case "home":
+		s, err := e.Home()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%+v\n", s)
+	case "inventory":
+		s, err := e.Inventory()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%+v\n", s)
+	case "stream":
+		/* s, err := e.Home()
+		if err != nil {
+			panic(err)
+		} */
+		fmt.Printf("working on it...\n")
 	default:
-        fmt.Printf("Valid commands: pull (sent: %s %s %s)\n", command, host, value)
+		fmt.Println("Valid commands: prod, home, inventory, stream")
 	}
 }
