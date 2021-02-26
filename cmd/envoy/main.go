@@ -66,6 +66,15 @@ func main() {
 			panic(err)
 		}
 		fmt.Printf("%+v\n", s)
+	case "info":
+		s, err := e.Info()
+		if err != nil {
+			panic(err)
+		}
+		// fmt.Printf("%+v\n", s)
+		fmt.Println("Serial Number: ", s.Device.Sn)
+		fmt.Println("Part Number: ", s.Device.Pn)
+		fmt.Println("Software Version: ", s.Device.Software)
 	case "stream":
 		/* s, err := e.Home()
 		if err != nil {

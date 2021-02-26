@@ -1,5 +1,7 @@
 package envoy
 
+import "encoding/xml"
+
 // from the production endpoint
 type production struct {
 	Production  []entry `json:"production"`
@@ -148,4 +150,32 @@ type stream struct {
 	Production       streamSet `json:"production"`
 	NetConsumption   streamSet `json:"net-consumption"`
 	TotalConsumption streamSet `json:"total-consumption"`
+}
+
+type EnvoyInfo struct {
+	XMLName xml.Name `xml:"envoy_info"`
+	Text    string   `xml:",chardata"`
+	Time    string   `xml:"time"`
+	Device  struct {
+		Text     string `xml:",chardata"`
+		Sn       string `xml:"sn"`
+		Pn       string `xml:"pn"`
+		Software string `xml:"software"`
+		Euaid    string `xml:"euaid"`
+		Seqnum   string `xml:"seqnum"`
+		Apiver   string `xml:"apiver"`
+		Imeter   string `xml:"imeter"`
+	} `xml:"device"`
+	Package []struct {
+		Text    string `xml:",chardata"`
+		Name    string `xml:"name,attr"`
+		Pn      string `xml:"pn"`
+		Version string `xml:"version"`
+		Build   string `xml:"build"`
+	} `xml:"package"`
+	BuildInfo struct {
+		Text         string `xml:",chardata"`
+		BuildTimeGmt string `xml:"build_time_gmt"`
+		BuildID      string `xml:"build_id"`
+	} `xml:"build_info"`
 }

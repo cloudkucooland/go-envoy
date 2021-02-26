@@ -2,6 +2,7 @@ package envoy
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -76,6 +77,25 @@ func (e *Envoy) Inventory() (*[]inventory, error) {
 	return &d, nil
 }
 
+func (e *Envoy) Info() (*EnvoyInfo, error) {
+	url := fmt.Sprintf("http://%s/info.xml", e.host)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+
+	var i EnvoyInfo
+	err = xml.Unmarshal(body, &i)
+	if err != nil {
+		return nil, err
+	}
+
+	return &i, nil
+}
+
 func (e *Envoy) Now() (float64, error) {
 	s, err := e.Production()
 	if err != nil {
@@ -107,6 +127,9 @@ func (e *Envoy) Today() (float64, error) {
 	}
 	return totprod, nil
 }
+
+// get serial number, software version from here
+// http://192.168.1.223/info.xml
 
 // requested, but errors
 // http://192.168.1.223/ivp/meters
