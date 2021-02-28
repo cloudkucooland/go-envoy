@@ -52,7 +52,7 @@ type line struct {
 	VarhLagToday     float64 `json:"varhLagToday"`
 }
 
-// http://192.168.1.223/home.json
+// http://envoy.local/home.json
 type home struct {
 	SoftwareBuildEpoch int     `json:"software_build_epoch"`
 	IsNonvoy           bool    `json:"is_nonvoy"`

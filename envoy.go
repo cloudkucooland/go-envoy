@@ -57,7 +57,7 @@ func (e *Envoy) Home() (*home, error) {
 	return &d, nil
 }
 
-// http://192.168.1.223/inventory.json?deleted=1
+// http://envoy.local/inventory.json?deleted=1
 func (e *Envoy) Inventory() (*[]inventory, error) {
 	url := fmt.Sprintf("http://%s/inventory.json", e.host)
 
@@ -129,10 +129,16 @@ func (e *Envoy) Today() (float64, error) {
 }
 
 // get serial number, software version from here
-// http://192.168.1.223/info.xml
+// http://envoy.local/info.xml
 
 // requested, but errors
-// http://192.168.1.223/ivp/meters
+// http://envoy.local/ivp/meters
 
 // frequently "", sometimes { "tunnel_open": false }
-// http://192.168.1.223/admin/lib/dba.json
+// http://envoy.local/admin/lib/dba.json
+
+// slightly different values than /production
+// http://envoy.local/api/v1/production
+
+// requires auth, but some details here
+// http://envoy.local/api/v1/production/inverters
