@@ -179,3 +179,14 @@ type EnvoyInfo struct {
 		BuildID      string `xml:"build_id"`
 	} `xml:"build_info"`
 }
+
+// requires authentication
+// http://envoy.local/api/v1/production/inverters
+// uint8 for Watts might be good enough, but mine are hitting 246...
+type Inverter struct {
+	SerialNumber    string `json:"serialNumber"`
+	LastReportDate  uint64 `json:"lastReportDate"`
+	DevType         uint8  `json:"devType"`
+	LastReportWatts int16  `json:"lastReportWatts"`
+	MaxReportWatts  uint16 `json:"maxReportWatts"`
+}

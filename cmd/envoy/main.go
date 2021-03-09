@@ -47,13 +47,17 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Now : %f\n", n)
+		max, err := e.SystemMax()
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Printf("Now : %2.2fw / %dw\n", n, max)
 	case "today":
 		t, err := e.Today()
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Today: %f\n", t)
+		fmt.Printf("Today: %2.2fkwh\n", t/1000)
 	case "home":
 		s, err := e.Home()
 		if err != nil {
@@ -82,6 +86,6 @@ func main() {
 		} */
 		fmt.Printf("working on it...\n")
 	default:
-		fmt.Println("Valid commands: prod, home, inventory, stream")
+		fmt.Println("Valid commands: prod, home, inventory, stream, now, today, info")
 	}
 }

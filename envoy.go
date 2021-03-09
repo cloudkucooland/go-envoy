@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	dac "github.com/xinsnake/go-http-digest-auth-client"
 	"io"
 	"net/http"
 )
 
 type Envoy struct {
-	host string
+	host     string
+	password string
 }
 
 func New(host string) (*Envoy, error) {
@@ -128,8 +130,54 @@ func (e *Envoy) Today() (float64, error) {
 	return totprod, nil
 }
 
-// get serial number, software version from here
-// http://envoy.local/info.xml
+func (e *Envoy) Inverters() (*[]Inverter, error) {
+	if e.password == "" {
+		e.autoPassword()
+	}
+
+	url := fmt.Sprintf("http://%s/api/v1/production/inverters", e.host)
+	req := dac.NewRequest("envoy", e.password, "GET", url, "")
+
+	resp, err := req.Execute()
+	if err != nil {
+		return nil, err
+	}
+	body, err := io.ReadAll(resp.Body)
+
+	var i []Inverter
+	err = json.Unmarshal(body, &i)
+	if err != nil {
+		fmt.Println(string(body))
+		return nil, err
+	}
+	return &i, nil
+}
+
+func (e *Envoy) SystemMax() (uint64, error) {
+	inverters, err := e.Inverters()
+	if err != nil {
+		return 0, err
+	}
+	var max uint64
+	for _, v := range *inverters {
+		max += uint64(v.MaxReportWatts)
+	}
+	return max, nil
+}
+
+func (e *Envoy) Password(p string) {
+	e.password = p
+}
+
+func (e *Envoy) autoPassword() error {
+	info, err := e.Info()
+	if err != nil {
+		return err
+	}
+
+	e.password = info.Device.Sn[6:12]
+	return nil
+}
 
 // requested, but errors
 // http://envoy.local/ivp/meters
@@ -139,6 +187,3 @@ func (e *Envoy) Today() (float64, error) {
 
 // slightly different values than /production
 // http://envoy.local/api/v1/production
-
-// requires auth, but some details here
-// http://envoy.local/api/v1/production/inverters
