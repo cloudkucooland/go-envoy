@@ -25,8 +25,7 @@ func main() {
 
 	var e *envoy.Envoy
 	if host == "" {
-		fmt.Println("usage: encore command host")
-		return
+		host = "envoy"
 	}
 
 	var err error
@@ -51,13 +50,13 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("Now : %2.2fw / %dw\n", n, max)
+		fmt.Printf("Now : %2.2fW / %dW\n", n, max)
 	case "today":
 		t, err := e.Today()
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Today: %2.2fkwh\n", t/1000)
+		fmt.Printf("Today: %2.2fkWh\n", t/1000)
 	case "home":
 		s, err := e.Home()
 		if err != nil {
