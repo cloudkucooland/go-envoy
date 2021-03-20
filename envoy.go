@@ -98,36 +98,44 @@ func (e *Envoy) Info() (*EnvoyInfo, error) {
 	return &i, nil
 }
 
-func (e *Envoy) Now() (float64, error) {
+func (e *Envoy) Now() (float64, float64, error) {
 	s, err := e.Production()
 	if err != nil {
-		return 0, err
+		return 0.0, 0.0, err
 	}
-	totprod := 0.0
+	tp := 0.0
 	for _, v := range s.Production {
-		lineprod := 0.0
-		for _, lv := range v.Lines {
-			lineprod += lv.WNow
+		if v.MeasurementType == "production" {
+			tp = v.WNow
 		}
-		totprod += lineprod
 	}
-	return totprod, nil
+	tc := 0.0
+	for _, v := range s.Consumption {
+		if v.MeasurementType == "total-consumption" {
+			tc = v.WNow
+		}
+	}
+	return tp, tc, nil
 }
 
-func (e *Envoy) Today() (float64, error) {
+func (e *Envoy) Today() (float64, float64, error) {
 	s, err := e.Production()
 	if err != nil {
-		return 0, err
+		return 0.0, 0.0, err
 	}
-	totprod := 0.0
+	tp := 0.0
 	for _, v := range s.Production {
-		lineprod := 0.0
-		for _, lv := range v.Lines {
-			lineprod += lv.WhToday
+		if v.MeasurementType == "production" {
+			tp = v.WhToday
 		}
-		totprod += lineprod
 	}
-	return totprod, nil
+	tc := 0.0
+	for _, v := range s.Consumption {
+		if v.MeasurementType == "total-consumption" {
+			tc = v.WhToday
+		}
+	}
+	return tp, tc, nil
 }
 
 func (e *Envoy) Inverters() (*[]Inverter, error) {

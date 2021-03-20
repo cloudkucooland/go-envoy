@@ -42,7 +42,7 @@ func main() {
 		}
 		fmt.Printf("%+v\n", s)
 	case "now":
-		n, err := e.Now()
+		p, c, err := e.Now()
 		if err != nil {
 			panic(err)
 		}
@@ -50,13 +50,13 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("Now : %2.2fW / %dW\n", n, max)
+		fmt.Printf("Production: %2.2fW / %dW\tConsumption: %2.2fW\n", p, max, c)
 	case "today":
-		t, err := e.Today()
+		p, c, err := e.Today()
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Today: %2.2fkWh\n", t/1000)
+		fmt.Printf("Production: %2.2fkWh\tConsumption: %2.2fkWh\n", p/1000, c/1000)
 	case "home":
 		s, err := e.Home()
 		if err != nil {
