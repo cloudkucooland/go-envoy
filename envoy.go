@@ -14,11 +14,16 @@ type Envoy struct {
 	password string
 }
 
-func New(host string) (*Envoy, error) {
+func New(host string) *Envoy {
+	// if no host set, try discovery
+	if host == "" {
+		host, _ = Discover()
+	}
+
 	e := Envoy{
 		host: host,
 	}
-	return &e, nil
+	return &e
 }
 
 func (e *Envoy) Production() (*production, error) {
