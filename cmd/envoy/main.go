@@ -24,15 +24,8 @@ func main() {
 	}
 
 	var e *envoy.Envoy
-	if host == "" {
-		host = "envoy"
-	}
 
-	var err error
-	e, err = envoy.New(host)
-	if err != nil {
-		panic(err)
-	}
+	e = envoy.New(host)
 
 	switch command {
 	case "prod":
