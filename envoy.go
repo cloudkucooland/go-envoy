@@ -6,8 +6,20 @@ import (
 	"fmt"
 	dac "github.com/xinsnake/go-http-digest-auth-client"
 	"io"
+	"log"
 	"net/http"
 )
+
+var elogger envoylogger = log.Default()
+
+type envoylogger interface {
+	Println(...interface{})
+	Printf(string, ...interface{})
+}
+
+func SetLogger(l envoylogger) {
+	elogger = l
+}
 
 type Envoy struct {
 	host     string
@@ -172,7 +184,7 @@ func (e *Envoy) Inverters() (*[]Inverter, error) {
 	var i []Inverter
 	err = json.Unmarshal(body, &i)
 	if err != nil {
-		fmt.Println(string(body))
+		elogger.Println(string(body))
 		return nil, err
 	}
 	return &i, nil

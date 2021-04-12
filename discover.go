@@ -2,7 +2,6 @@ package envoy
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/brutella/dnssd"
@@ -26,7 +25,7 @@ func Discover() (string, error) {
 
 	if err := dnssd.LookupType(ctx, "_enphase-envoy._tcp.local.", found, reject); err != nil {
 		if err.Error() != "context canceled" {
-			fmt.Printf("discovery: %v\n", err)
+			elogger.Printf("discovery: %v\n", err)
 			return discovered, err
 		}
 	}
@@ -34,5 +33,5 @@ func Discover() (string, error) {
 }
 
 func reject(e dnssd.BrowseEntry) {
-	fmt.Printf("dnssd-lookup: %+v", e)
+	elogger.Printf("dnssd-lookup: %+v", e)
 }
