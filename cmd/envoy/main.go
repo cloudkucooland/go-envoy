@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/cloudkucooland/go-envoy"
@@ -33,7 +34,8 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("%+v\n", s)
+		i, _ := json.MarshalIndent(s, "", " ")
+		fmt.Printf("%s\n", i)
 	case "now":
 		p, c, net, err := e.Now()
 		if err != nil {
@@ -43,13 +45,13 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
-        fmt.Printf("Production: %2.2fW / %dW\tConsumption: %2.2fW\tNet: %2.2fW\n", p, max, c, net)
+		fmt.Printf("Production: %2.2fW / %dW\tConsumption: %2.2fW\tNet: %2.2fW\n", p, max, c, net)
 	case "today":
 		p, c, net, err := e.Today()
 		if err != nil {
 			panic(err)
 		}
-        fmt.Printf("Production: %2.2fkWh\tConsumption: %2.2fkWh\tNet: %2.2fkWh\n", p/1000, c/1000, net/1000)
+		fmt.Printf("Production: %2.2fkWh\tConsumption: %2.2fkWh\tNet: %2.2fkWh\n", p/1000, c/1000, net/1000)
 	case "home":
 		s, err := e.Home()
 		if err != nil {
