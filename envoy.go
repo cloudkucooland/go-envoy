@@ -47,6 +47,9 @@ func (e *Envoy) Production() (*production, error) {
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	var d production
 	err = json.Unmarshal(body, &d)
@@ -66,6 +69,9 @@ func (e *Envoy) Home() (*home, error) {
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	var d home
 	err = json.Unmarshal(body, &d)
@@ -86,6 +92,9 @@ func (e *Envoy) Inventory() (*[]inventory, error) {
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	var d []inventory
 	err = json.Unmarshal(body, &d)
@@ -105,6 +114,9 @@ func (e *Envoy) Info() (*EnvoyInfo, error) {
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	var i EnvoyInfo
 	err = xml.Unmarshal(body, &i)
@@ -180,6 +192,9 @@ func (e *Envoy) Inverters() (*[]Inverter, error) {
 		return nil, err
 	}
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	var i []Inverter
 	err = json.Unmarshal(body, &i)

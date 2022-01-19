@@ -146,7 +146,8 @@ type streamSet struct {
 	C streamEntry `json:"ph-c"`
 }
 
-type stream struct {
+// Stream is the type for the webstream
+type Stream struct {
 	Production       streamSet `json:"production"`
 	NetConsumption   streamSet `json:"net-consumption"`
 	TotalConsumption streamSet `json:"total-consumption"`
