@@ -80,6 +80,7 @@ func main() {
 		} */
 		fmt.Printf("working on it...\n")
 	default:
+                fmt.Println("usage: envoy <command> <IQ IP address/hostname>")
 		fmt.Println("Valid commands: prod, home, inventory, stream, now, today, info")
 	}
 }
