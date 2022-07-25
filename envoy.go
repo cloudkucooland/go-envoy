@@ -8,6 +8,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	// "net"
+	"time"
 )
 
 var elogger envoylogger = log.Default()
@@ -24,6 +26,7 @@ func SetLogger(l envoylogger) {
 type Envoy struct {
 	host     string
 	password string
+	client   *http.Client
 }
 
 func New(host string) *Envoy {
@@ -35,13 +38,30 @@ func New(host string) *Envoy {
 	e := Envoy{
 		host: host,
 	}
+	e.client = newClient()
+
 	return &e
+}
+
+func (e *Envoy) Host() string {
+    return e.host
+}
+
+func (e *Envoy) Rediscover() error {
+    var err error
+    e.host, err = Discover()
+    return err
+}
+
+func (e *Envoy) Close() {
+    e.host = ""
+    e.password = ""
 }
 
 func (e *Envoy) Production() (*production, error) {
 	url := fmt.Sprintf("http://%s/production.json?details=1", e.host)
 
-	resp, err := http.Get(url)
+	resp, err := e.client.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +83,7 @@ func (e *Envoy) Production() (*production, error) {
 func (e *Envoy) Home() (*home, error) {
 	url := fmt.Sprintf("http://%s/home.json", e.host)
 
-	resp, err := http.Get(url)
+	resp, err := e.client.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +106,7 @@ func (e *Envoy) Home() (*home, error) {
 func (e *Envoy) Inventory() (*[]inventory, error) {
 	url := fmt.Sprintf("http://%s/inventory.json", e.host)
 
-	resp, err := http.Get(url)
+	resp, err := e.client.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +128,7 @@ func (e *Envoy) Inventory() (*[]inventory, error) {
 func (e *Envoy) Info() (*EnvoyInfo, error) {
 	url := fmt.Sprintf("http://%s/info.xml", e.host)
 
-	resp, err := http.Get(url)
+	resp, err := e.client.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -229,6 +249,18 @@ func (e *Envoy) autoPassword() error {
 
 	e.password = info.Device.Sn[6:12]
 	return nil
+}
+
+func newClient() *http.Client {
+	tr := &http.Transport{
+		ResponseHeaderTimeout: 3 * time.Second,
+		DisableKeepAlives:     true,
+		MaxIdleConns:       5,
+		IdleConnTimeout:    20 * time.Second,
+		DisableCompression: true,
+	}
+	client := &http.Client{Transport: tr}
+	return client
 }
 
 // requested, but errors
