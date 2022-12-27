@@ -44,18 +44,18 @@ func New(host string) *Envoy {
 }
 
 func (e *Envoy) Host() string {
-    return e.host
+	return e.host
 }
 
 func (e *Envoy) Rediscover() error {
-    var err error
-    e.host, err = Discover()
-    return err
+	var err error
+	e.host, err = Discover()
+	return err
 }
 
 func (e *Envoy) Close() {
-    e.host = ""
-    e.password = ""
+	e.host = ""
+	e.password = ""
 }
 
 func (e *Envoy) Production() (*production, error) {
@@ -255,9 +255,9 @@ func newClient() *http.Client {
 	tr := &http.Transport{
 		ResponseHeaderTimeout: 3 * time.Second,
 		DisableKeepAlives:     true,
-		MaxIdleConns:       5,
-		IdleConnTimeout:    20 * time.Second,
-		DisableCompression: true,
+		MaxIdleConns:          5,
+		IdleConnTimeout:       20 * time.Second,
+		DisableCompression:    true,
 	}
 	client := &http.Client{Transport: tr}
 	return client
