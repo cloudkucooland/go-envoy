@@ -24,9 +24,7 @@ func main() {
 		host = args[1]
 	}
 
-	var e *envoy.Envoy
-
-	e = envoy.New(host)
+	e := envoy.New(host)
 
 	switch command {
 	case "prod":
@@ -80,7 +78,7 @@ func main() {
 		} */
 		fmt.Printf("working on it...\n")
 	default:
-                fmt.Println("usage: envoy <command> <IQ IP address/hostname>")
+		fmt.Println("usage: envoy <command> <IQ IP address/hostname>")
 		fmt.Println("Valid commands: prod, home, inventory, stream, now, today, info")
 	}
 }
