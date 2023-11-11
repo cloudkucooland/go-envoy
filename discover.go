@@ -9,7 +9,7 @@ import (
 
 func Discover() (string, error) {
 	discovered := "envoy"
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	found := func(e dnssd.BrowseEntry) {

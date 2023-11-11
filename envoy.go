@@ -29,18 +29,27 @@ type Envoy struct {
 	client   *http.Client
 }
 
-func New(host string) *Envoy {
+func New(host string) (*Envoy, error) {
+    var err error
+	e := Envoy{}
+
 	// if no host set, try discovery
 	if host == "" {
-		host, _ = Discover()
+		host, err = Discover()
 	}
+    if err != nil {
+        elogger.Println(err.Error())
+        return &e, err
+    }
+    if host == "" {
+		elogger.Println("auto-discovery failed")
+        return &e, err
+    }
 
-	e := Envoy{
-		host: host,
-	}
+	e.host = host
 	e.client = newClient()
 
-	return &e
+	return &e, nil
 }
 
 func (e *Envoy) Host() string {
@@ -56,6 +65,8 @@ func (e *Envoy) Rediscover() error {
 func (e *Envoy) Close() {
 	e.host = ""
 	e.password = ""
+    e.client.CloseIdleConnections()
+    e.client = nil
 }
 
 func (e *Envoy) Production() (*production, error) {
@@ -63,17 +74,19 @@ func (e *Envoy) Production() (*production, error) {
 
 	resp, err := e.client.Get(url)
 	if err != nil {
+		elogger.Println(err.Error())
 		return nil, err
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		elogger.Println(err.Error())
 		return nil, err
 	}
 
 	var d production
-	err = json.Unmarshal(body, &d)
-	if err != nil {
+    if err := json.Unmarshal(body, &d); err != nil {
+		elogger.Println(err.Error())
 		return nil, err
 	}
 
@@ -94,8 +107,7 @@ func (e *Envoy) Home() (*home, error) {
 	}
 
 	var d home
-	err = json.Unmarshal(body, &d)
-	if err != nil {
+    if err := json.Unmarshal(body, &d); err != nil {
 		return nil, err
 	}
 
@@ -117,8 +129,7 @@ func (e *Envoy) Inventory() (*[]inventory, error) {
 	}
 
 	var d []inventory
-	err = json.Unmarshal(body, &d)
-	if err != nil {
+	if err = json.Unmarshal(body, &d); err != nil {
 		return nil, err
 	}
 
@@ -139,8 +150,7 @@ func (e *Envoy) Info() (*EnvoyInfo, error) {
 	}
 
 	var i EnvoyInfo
-	err = xml.Unmarshal(body, &i)
-	if err != nil {
+    if err := xml.Unmarshal(body, &i); err != nil {
 		return nil, err
 	}
 
@@ -217,8 +227,7 @@ func (e *Envoy) Inverters() (*[]Inverter, error) {
 	}
 
 	var i []Inverter
-	err = json.Unmarshal(body, &i)
-	if err != nil {
+	if err = json.Unmarshal(body, &i); err != nil {
 		elogger.Println(string(body))
 		return nil, err
 	}
@@ -253,13 +262,16 @@ func (e *Envoy) autoPassword() error {
 
 func newClient() *http.Client {
 	tr := &http.Transport{
-		ResponseHeaderTimeout: 3 * time.Second,
+		ResponseHeaderTimeout: time.Duration(3) * time.Second,
 		DisableKeepAlives:     true,
 		MaxIdleConns:          5,
-		IdleConnTimeout:       20 * time.Second,
+		IdleConnTimeout:       time.Duration(10) * time.Second,
 		DisableCompression:    true,
 	}
-	client := &http.Client{Transport: tr}
+	client := &http.Client{
+        Transport: tr,
+        Timeout: time.Duration(5) * time.Second,
+    }
 	return client
 }
 

@@ -24,7 +24,10 @@ func main() {
 		host = args[1]
 	}
 
-	e := envoy.New(host)
+	e, err := envoy.New(host)
+    if err != nil {
+        panic(err)
+    }
 
 	switch command {
 	case "prod":
@@ -43,7 +46,7 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("Production: %2.2fW / %dW\tConsumption: %2.2fW\tNet: %2.2fW\n", p, max, c, net)
+		fmt.Printf("Production: %2.2fW / %dW\tConsumption: %2.2fW\tNet: %2.2fW\n", p, max, c, 0 - net)
 	case "today":
 		p, c, net, err := e.Today()
 		if err != nil {
