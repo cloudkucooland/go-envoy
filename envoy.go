@@ -1,6 +1,7 @@
 package envoy
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -70,7 +71,7 @@ func (e *Envoy) Close() {
 }
 
 func (e *Envoy) Production() (*production, error) {
-	url := fmt.Sprintf("http://%s/production.json?details=1", e.host)
+	url := fmt.Sprintf("https://%s/production.json?details=1", e.host)
 
 	resp, err := e.client.Get(url)
 	if err != nil {
@@ -87,6 +88,7 @@ func (e *Envoy) Production() (*production, error) {
 	var d production
 	if err := json.Unmarshal(body, &d); err != nil {
 		elogger.Println(err.Error())
+		elogger.Println(string(body))
 		return nil, err
 	}
 
@@ -94,7 +96,7 @@ func (e *Envoy) Production() (*production, error) {
 }
 
 func (e *Envoy) Home() (*home, error) {
-	url := fmt.Sprintf("http://%s/home.json", e.host)
+	url := fmt.Sprintf("https://%s/home.json", e.host)
 
 	resp, err := e.client.Get(url)
 	if err != nil {
@@ -108,6 +110,8 @@ func (e *Envoy) Home() (*home, error) {
 
 	var d home
 	if err := json.Unmarshal(body, &d); err != nil {
+		elogger.Println(err.Error())
+		elogger.Println(string(body))
 		return nil, err
 	}
 
@@ -116,7 +120,7 @@ func (e *Envoy) Home() (*home, error) {
 
 // http://envoy.local/inventory.json?deleted=1
 func (e *Envoy) Inventory() (*[]inventory, error) {
-	url := fmt.Sprintf("http://%s/inventory.json", e.host)
+	url := fmt.Sprintf("https://%s/inventory.json", e.host)
 
 	resp, err := e.client.Get(url)
 	if err != nil {
@@ -130,6 +134,8 @@ func (e *Envoy) Inventory() (*[]inventory, error) {
 
 	var d []inventory
 	if err = json.Unmarshal(body, &d); err != nil {
+		elogger.Println(err.Error())
+		elogger.Println(string(body))
 		return nil, err
 	}
 
@@ -137,7 +143,7 @@ func (e *Envoy) Inventory() (*[]inventory, error) {
 }
 
 func (e *Envoy) Info() (*EnvoyInfo, error) {
-	url := fmt.Sprintf("http://%s/info.xml", e.host)
+	url := fmt.Sprintf("https://%s/info.xml", e.host)
 
 	resp, err := e.client.Get(url)
 	if err != nil {
@@ -151,6 +157,8 @@ func (e *Envoy) Info() (*EnvoyInfo, error) {
 
 	var i EnvoyInfo
 	if err := xml.Unmarshal(body, &i); err != nil {
+		elogger.Println(err.Error())
+		elogger.Println(string(body))
 		return nil, err
 	}
 
@@ -214,7 +222,7 @@ func (e *Envoy) Inverters() (*[]Inverter, error) {
 		e.autoPassword()
 	}
 
-	url := fmt.Sprintf("http://%s/api/v1/production/inverters", e.host)
+	url := fmt.Sprintf("https://%s/api/v1/production/inverters", e.host)
 	req := dac.NewRequest("envoy", e.password, "GET", url, "")
 
 	resp, err := req.Execute()
@@ -228,6 +236,7 @@ func (e *Envoy) Inverters() (*[]Inverter, error) {
 
 	var i []Inverter
 	if err = json.Unmarshal(body, &i); err != nil {
+		elogger.Println(err.Error())
 		elogger.Println(string(body))
 		return nil, err
 	}
@@ -261,12 +270,16 @@ func (e *Envoy) autoPassword() error {
 }
 
 func newClient() *http.Client {
+	tlsconfig := &tls.Config{
+		InsecureSkipVerify: true,
+	}
 	tr := &http.Transport{
 		ResponseHeaderTimeout: time.Duration(3) * time.Second,
 		DisableKeepAlives:     true,
 		MaxIdleConns:          5,
 		IdleConnTimeout:       time.Duration(10) * time.Second,
 		DisableCompression:    true,
+		TLSClientConfig:       tlsconfig,
 	}
 	client := &http.Client{
 		Transport: tr,
