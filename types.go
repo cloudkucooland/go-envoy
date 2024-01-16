@@ -11,8 +11,10 @@ type production struct {
 
 type entry struct {
 	Type             string  `json:"type"`
-	ActiveCount      int     `json:"activeCount"`
 	MeasurementType  string  `json:"measurementType"`
+	State            string  `json:"state,omitempty"`
+	Lines            []line  `json:"lines,omitempty"`
+	ActiveCount      int     `json:"activeCount"`
 	ReadingTime      int     `json:"readingTime"`
 	WNow             float64 `json:"wNow,omitempty"`
 	WhLifetime       float64 `json:"whLifetime,omitempty"`
@@ -30,8 +32,6 @@ type entry struct {
 	VahToday         float64 `json:"vahToday,omitempty"`
 	VarhLeadToday    float64 `json:"varhLeadToday,omitempty"`
 	VarhLagToday     float64 `json:"varhLagToday,omitempty"`
-	State            string  `json:"state,omitempty"`
-	Lines            []line  `json:"lines,omitempty"`
 }
 
 type line struct {
@@ -54,24 +54,24 @@ type line struct {
 
 // http://envoy.local/home.json
 type home struct {
-	SoftwareBuildEpoch int     `json:"software_build_epoch"`
-	IsNonvoy           bool    `json:"is_nonvoy"`
-	DbSize             string  `json:"db_size"`
-	DbPercentFull      string  `json:"db_percent_full"`
-	Timezone           string  `json:"timezone"`
-	CurrentDate        string  `json:"current_date"`
-	CurrentTime        string  `json:"current_time"`
-	Network            homenet `json:"network"`
-	Tariff             string  `json:"tariff"`
-	Comm               struct {
+	DbSize        string        `json:"db_size"`
+	DbPercentFull string        `json:"db_percent_full"`
+	Timezone      string        `json:"timezone"`
+	CurrentDate   string        `json:"current_date"`
+	CurrentTime   string        `json:"current_time"`
+	Tariff        string        `json:"tariff"`
+	UpdateStatus  string        `json:"update_status"`
+	Network       homenet       `json:"network"`
+	Alerts        []interface{} `json:"alerts"` // dunno on this one yet
+	Comm          struct {
 		Num   int        `json:"num"`
 		Level int        `json:"level"`
 		Pcu   homenumlev `json:"pcu"`
 		Acb   homenumlev `json:"acb"`
 		Nsrb  homenumlev `json:"nsrb"`
 	} `json:"comm"`
-	Alerts       []interface{} `json:"alerts"` // dunno on this one yet
-	UpdateStatus string        `json:"update_status"`
+	SoftwareBuildEpoch int  `json:"software_build_epoch"`
+	IsNonvoy           bool `json:"is_nonvoy"`
 }
 
 type homenumlev struct {
@@ -80,27 +80,27 @@ type homenumlev struct {
 }
 
 type homenet struct {
-	WebComm                 bool        `json:"web_comm"`
-	EverReportedToEnlighten bool        `json:"ever_reported_to_enlighten"`
-	LastEnlightenReportTime int         `json:"last_enlighten_report_time"`
 	PrimaryInterface        string      `json:"primary_interface"`
 	Interfaces              []homenetif `json:"interfaces"`
+	LastEnlightenReportTime int         `json:"last_enlighten_report_time"`
+	WebComm                 bool        `json:"web_comm"`
+	EverReportedToEnlighten bool        `json:"ever_reported_to_enlighten"`
 }
 
 type homenetif struct {
+	Type              string `json:"type"`
+	Interface         string `json:"interface"`
+	IP                string `json:"ip"`
+	Mac               string `json:"mac,omitempty"`
+	Status            string `json:"status,omitempty"`
 	SignalStrength    int    `json:"signal_strength"`
 	SignalStrengthMax int    `json:"signal_strength_max"`
 	Network           bool   `json:"network,omitempty"`
-	Type              string `json:"type"`
-	Interface         string `json:"interface"`
 	Dhcp              bool   `json:"dhcp"`
-	IP                string `json:"ip"`
 	Carrier           bool   `json:"carrier"`
-	Mac               string `json:"mac,omitempty"`
 	Supported         bool   `json:"supported,omitempty"`
 	Present           bool   `json:"present,omitempty"`
 	Configured        bool   `json:"configured,omitempty"`
-	Status            string `json:"status,omitempty"`
 }
 
 // inventory
@@ -110,18 +110,18 @@ type inventory struct {
 		PartNum        string   `json:"part_num"`
 		Installed      string   `json:"installed"`
 		SerialNum      string   `json:"serial_num"`
-		DeviceStatus   []string `json:"device_status"`
 		LastRptDate    string   `json:"last_rpt_date"`
-		AdminState     int      `json:"admin_state"`
-		DevType        int      `json:"dev_type"`
 		CreatedDate    string   `json:"created_date"`
 		ImgLoadDate    string   `json:"img_load_date"`
 		ImgPnumRunning string   `json:"img_pnum_running"`
 		Ptpn           string   `json:"ptpn"`
-		Chaneid        int      `json:"chaneid"`
+		DeviceStatus   []string `json:"device_status"`
 		DeviceControl  []struct {
 			Gficlearset bool `json:"gficlearset"`
 		} `json:"device_control"`
+		AdminState    int  `json:"admin_state"`
+		DevType       int  `json:"dev_type"`
+		Chaneid       int  `json:"chaneid"`
 		Producing     bool `json:"producing"`
 		Communicating bool `json:"communicating"`
 		Provisioned   bool `json:"provisioned"`
@@ -154,10 +154,7 @@ type Stream struct {
 }
 
 type EnvoyInfo struct {
-	XMLName xml.Name `xml:"envoy_info"`
-	Text    string   `xml:",chardata"`
-	Time    string   `xml:"time"`
-	Device  struct {
+	Device struct {
 		Text     string `xml:",chardata"`
 		Sn       string `xml:"sn"`
 		Pn       string `xml:"pn"`
@@ -167,6 +164,14 @@ type EnvoyInfo struct {
 		Apiver   string `xml:"apiver"`
 		Imeter   string `xml:"imeter"`
 	} `xml:"device"`
+	BuildInfo struct {
+		Text         string `xml:",chardata"`
+		BuildTimeGmt string `xml:"build_time_gmt"`
+		BuildID      string `xml:"build_id"`
+	} `xml:"build_info"`
+	XMLName xml.Name `xml:"envoy_info"`
+	Text    string   `xml:",chardata"`
+	Time    string   `xml:"time"`
 	Package []struct {
 		Text    string `xml:",chardata"`
 		Name    string `xml:"name,attr"`
@@ -174,11 +179,6 @@ type EnvoyInfo struct {
 		Version string `xml:"version"`
 		Build   string `xml:"build"`
 	} `xml:"package"`
-	BuildInfo struct {
-		Text         string `xml:",chardata"`
-		BuildTimeGmt string `xml:"build_time_gmt"`
-		BuildID      string `xml:"build_id"`
-	} `xml:"build_info"`
 }
 
 // requires authentication

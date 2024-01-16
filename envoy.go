@@ -24,27 +24,27 @@ func SetLogger(l envoylogger) {
 }
 
 type Envoy struct {
+	client   *http.Client
 	host     string
 	password string
-	client   *http.Client
 }
 
 func New(host string) (*Envoy, error) {
-    var err error
+	var err error
 	e := Envoy{}
 
 	// if no host set, try discovery
 	if host == "" {
 		host, err = Discover()
 	}
-    if err != nil {
-        elogger.Println(err.Error())
-        return &e, err
-    }
-    if host == "" {
+	if err != nil {
+		elogger.Println(err.Error())
+		return &e, err
+	}
+	if host == "" {
 		elogger.Println("auto-discovery failed")
-        return &e, err
-    }
+		return &e, err
+	}
 
 	e.host = host
 	e.client = newClient()
@@ -65,8 +65,8 @@ func (e *Envoy) Rediscover() error {
 func (e *Envoy) Close() {
 	e.host = ""
 	e.password = ""
-    e.client.CloseIdleConnections()
-    e.client = nil
+	e.client.CloseIdleConnections()
+	e.client = nil
 }
 
 func (e *Envoy) Production() (*production, error) {
@@ -85,7 +85,7 @@ func (e *Envoy) Production() (*production, error) {
 	}
 
 	var d production
-    if err := json.Unmarshal(body, &d); err != nil {
+	if err := json.Unmarshal(body, &d); err != nil {
 		elogger.Println(err.Error())
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (e *Envoy) Home() (*home, error) {
 	}
 
 	var d home
-    if err := json.Unmarshal(body, &d); err != nil {
+	if err := json.Unmarshal(body, &d); err != nil {
 		return nil, err
 	}
 
@@ -150,7 +150,7 @@ func (e *Envoy) Info() (*EnvoyInfo, error) {
 	}
 
 	var i EnvoyInfo
-    if err := xml.Unmarshal(body, &i); err != nil {
+	if err := xml.Unmarshal(body, &i); err != nil {
 		return nil, err
 	}
 
@@ -269,9 +269,9 @@ func newClient() *http.Client {
 		DisableCompression:    true,
 	}
 	client := &http.Client{
-        Transport: tr,
-        Timeout: time.Duration(5) * time.Second,
-    }
+		Transport: tr,
+		Timeout:   time.Duration(5) * time.Second,
+	}
 	return client
 }
 
