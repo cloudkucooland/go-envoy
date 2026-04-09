@@ -2,36 +2,43 @@ package envoy
 
 import (
 	"context"
-	"time"
+	"errors"
+	"fmt"
+	"log/slog"
 
 	"github.com/brutella/dnssd"
 )
 
-func Discover() (string, error) {
-	discovered := "envoy"
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+func Discover(ctx context.Context) (string, error) {
+	var discovered string
+
+	searchCtx, cancelSearch := context.WithCancel(ctx)
+	defer cancelSearch()
 
 	found := func(e dnssd.BrowseEntry) {
-		// look through the list of IPs, pick something IPv4
 		for _, ipa := range e.IPs {
-			if ipa.To4() != nil {
-				discovered = ipa.String()
-				cancel()
+			if ip := ipa.To4(); ip != nil {
+				discovered = ip.String()
+				slog.DebugContext(ctx, "envoy discovered", "host", discovered, "name", e.Name)
+				cancelSearch()
 				return
 			}
 		}
 	}
 
-	if err := dnssd.LookupType(ctx, "_enphase-envoy._tcp.local.", found, reject); err != nil {
-		if err.Error() != "context canceled" {
-			elogger.Printf("discovery: %v\n", err)
-			return "", err
-		}
+	reject := func(e dnssd.BrowseEntry) {
+		slog.InfoContext(ctx, "dnssd entry rejected", "entry", e.Name)
 	}
-	return discovered, nil
-}
 
-func reject(e dnssd.BrowseEntry) {
-	elogger.Printf("dnssd-lookup: %+v", e)
+	err := dnssd.LookupType(searchCtx, "_enphase-envoy._tcp.local.", found, reject)
+
+	if err != nil && !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) {
+		return "", fmt.Errorf("dnssd lookup failed: %w", err)
+	}
+
+	if discovered == "" {
+		return "", fmt.Errorf("no envoy discovered on local network")
+	}
+
+	return discovered, nil
 }

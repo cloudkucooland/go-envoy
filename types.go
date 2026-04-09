@@ -3,17 +3,17 @@ package envoy
 import "encoding/xml"
 
 // from the production endpoint
-type production struct {
-	Production  []entry `json:"production"`
-	Consumption []entry `json:"consumption"`
-	Storage     []entry `json:"storage"`
+type Production struct {
+	Production  []Entry `json:"production"`
+	Consumption []Entry `json:"consumption"`
+	Storage     []Entry `json:"storage"`
 }
 
-type entry struct {
+type Entry struct {
 	Type             string  `json:"type"`
 	MeasurementType  string  `json:"measurementType"`
 	State            string  `json:"state,omitempty"`
-	Lines            []line  `json:"lines,omitempty"`
+	Lines            []Line  `json:"lines,omitempty"`
 	ActiveCount      int     `json:"activeCount"`
 	ReadingTime      int     `json:"readingTime"`
 	WNow             float64 `json:"wNow,omitempty"`
@@ -34,7 +34,7 @@ type entry struct {
 	VarhLagToday     float64 `json:"varhLagToday,omitempty"`
 }
 
-type line struct {
+type Line struct {
 	WNow             float64 `json:"wNow"`
 	WhLifetime       float64 `json:"whLifetime"`
 	VarhLeadLifetime float64 `json:"varhLeadLifetime"`
