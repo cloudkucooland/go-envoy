@@ -1,0 +1,37 @@
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Updated to v4.2.0+ or v5 (Check Marketplace for latest stable)
+      - uses: actions/checkout@v4 
+
+      # Updated to v6 for Node 24 support
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Test with Coverage
+        run: go test -v -coverprofile=profile.cov ./...
+
+      - name: Send coverage to Goveralls
+        # Ensure you are on the latest v1 tag or check for v2
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: profile.cov
+          github-token: ${{ secrets.GITHUB_TOKEN }}
