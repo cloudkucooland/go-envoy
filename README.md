@@ -1,3 +1,8 @@
+[![LICENSE](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![GoReportCard](https://goreportcard.com/badge/cloudkucooland/go-envoy)](https://goreportcard.com/report/cloudkucooland/go-envoy)
+[![GoDoc](https://godoc.org/github.com/cloudkucooland/go-envoy?status.svg)](https://godoc.org/github.com/cloudkucooland/go-envoy)
+[![Go](https://github.com/cloudkucooland/go-envoy/actions/workflows/go.yml/badge.svg)](https://github.com/cloudkucooland/go-envoy/actions/workflows/go.yml)
+
 # go-envoy
 Pull data from an Enphase IQ Envoy or IQ Combiner
 
