@@ -73,8 +73,8 @@ func (e *Envoy) Home(ctx context.Context) (*home, error) {
 	return doRequest[home](ctx, e, "home.json")
 }
 
-func (e *Envoy) Inventory(ctx context.Context) (*[]inventory, error) {
-	return doRequest[[]inventory](ctx, e, "inventory.json")
+func (e *Envoy) Inventory(ctx context.Context) (*[]Inventory, error) {
+	return doRequest[[]Inventory](ctx, e, "inventory.json")
 }
 
 func (e *Envoy) Info(ctx context.Context) (*EnvoyInfo, error) {
@@ -116,6 +116,6 @@ func newClient() *http.Client {
 			IdleConnTimeout:    90 * time.Second,
 			DisableCompression: true,
 		},
-		Timeout: 10 * time.Second,
+		Timeout: 30 * time.Second,
 	}
 }

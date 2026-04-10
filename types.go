@@ -103,8 +103,8 @@ type homenetif struct {
 	Configured        bool   `json:"configured,omitempty"`
 }
 
-// inventory
-type inventory struct {
+// Inventory
+type Inventory struct {
 	Type    string `json:"type"`
 	Devices []struct {
 		PartNum        string   `json:"part_num"`
